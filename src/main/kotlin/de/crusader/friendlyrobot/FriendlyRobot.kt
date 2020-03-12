@@ -1,9 +1,6 @@
 package de.crusader.friendlyrobot
 
-import de.crusader.extensions.printErr
-import de.crusader.extensions.toFullString
-import de.crusader.extensions.toOptimizedLine
-import de.crusader.friendlyrobot.commands.CheckCommand
+import de.crusader.friendlyrobot.commands.Command
 import de.crusader.friendlyrobot.latex.LatexParser
 import java.io.File
 import java.nio.charset.Charset
@@ -13,49 +10,21 @@ import java.nio.charset.Charset
  */
 fun main(args: Array<String>) {
     if (args.isEmpty()) {
-        println("No parameters provided. Starting in interactive mode... Type 'check --help' for help.")
+        println("No parameters provided. Starting in interactive mode... Type 'help' for help.")
         for (commandLine in generateSequence { readLine() }) {
-            executeCommand(commandLine)
+            Command.execute(commandLine)
         }
     } else {
         val commandLine = args.joinToString(" ")
-        executeCommand(commandLine)
-    }
-}
-
-/**
- * Handle command by given commandline
- */
-private fun executeCommand(commandLine: String) {
-    val cmd = CheckCommand()
-    try {
-        cmd.parse(commandLine)
-    } catch (ex: Exception) {
-        printErr(ex.toOptimizedLine(false))
-        println(cmd.getSynopsis())
-        return
-    }
-    try {
-        if (cmd.help == null) {
-            // Execute command
-            cmd.execute()
-        } else {
-            // Print help page
-            println(cmd.getManual())
-        }
-    } catch (ex: Exception) {
-        val error: String = if (cmd.details == true) {
-            ex.toFullString()
-        } else {
-            ex.toOptimizedLine(false)
-        }
-        printErr(error)
+        Command.execute(commandLine)
     }
 }
 
 /**
  * Loads and parses a latex file with a specific encoding.
  *
+ * @param latexSourceFile - File of the latex source code
+ * @param charset - The charset encoding of the latex file
  * @return LatexParser with parsed latex content
  */
 fun parseLatexFile(latexSourceFile: File, charset: Charset): LatexParser {
