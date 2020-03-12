@@ -1,8 +1,8 @@
-package de.crusader.friendlyrobot.parser
+package de.crusader.friendlyrobot.latex
 
 import de.crusader.extensions.plusAssign
 import de.crusader.extensions.printErr
-import de.crusader.friendlyrobot.context.Context
+import de.crusader.friendlyrobot.parser.Parser
 import org.languagetool.markup.AnnotatedText
 import org.languagetool.markup.AnnotatedTextBuilder
 

@@ -1,4 +1,4 @@
-package de.crusader.friendlyrobot.context
+package de.crusader.friendlyrobot.parser
 
 class ContextHistory<CONTEXT>(defaultContext: CONTEXT) {
     private val firstSwitch = ContextObject(0, defaultContext)

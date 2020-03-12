@@ -1,4 +1,4 @@
-package de.crusader.friendlyrobot.context
+package de.crusader.friendlyrobot.parser
 
 class ContextObject<CONTEXT>(
         val startIndex: Int,

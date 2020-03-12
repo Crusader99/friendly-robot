@@ -1,8 +1,5 @@
 package de.crusader.friendlyrobot.parser
 
-import de.crusader.friendlyrobot.context.ContextHistory
-import de.crusader.friendlyrobot.context.ContextObject
-
 abstract class Parser<CONTEXT>(val input: String) {
 
     // Context change for each index
