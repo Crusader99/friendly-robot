@@ -1,9 +1,8 @@
-package de.crusader.friendlyrobot
+package de.crusader.friendlyrobot.parser
 
 import de.crusader.extensions.plusAssign
 import de.crusader.extensions.printErr
-import de.crusader.objects.color.Color
-import de.crusader.objects.color.KnownColor
+import de.crusader.friendlyrobot.context.Context
 import org.languagetool.markup.AnnotatedText
 import org.languagetool.markup.AnnotatedTextBuilder
 
@@ -250,14 +249,4 @@ class LatexParser(input: String) : Parser<Context>(input) {
         return builder.toString().trim()
     }
 
-}
-
-enum class Context(val fgColor: KnownColor, val bgColor: KnownColor) {
-    TEXT(Color.WHITE, Color.BLACK),
-    SPACE(Color.WHITE, Color.GRAY),
-    COMMENT(Color.YELLOW, Color.AQUA),
-    MARKUP_COMMAND(Color.YELLOW, Color.RED),
-    MARKUP_CONTENT(Color.WHITE, Color.MAGENTA),
-    QUOTATION_MARKS(Color.ORANGE, Color.BLACK),
-    MATH(Color.WHITE, Color.DARK_RED)
 }

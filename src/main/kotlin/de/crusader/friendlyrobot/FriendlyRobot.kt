@@ -1,5 +1,6 @@
 package de.crusader.friendlyrobot
 
+import de.crusader.friendlyrobot.parser.LatexParser
 import de.crusader.objects.color.Color
 import org.languagetool.JLanguageTool
 import org.languagetool.language.GermanyGerman
