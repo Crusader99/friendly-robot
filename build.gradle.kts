@@ -1,9 +1,15 @@
 plugins {
+    application
     kotlin("jvm") version "1.3.70"
 }
 
 group = "de.crusader"
 version = "1.0.0"
+
+application {
+    applicationName = "FriendlyRobot"
+    mainClassName = "de.crusader.friendlyrobot.FriendlyRobotKt"
+}
 
 repositories {
     mavenCentral()
