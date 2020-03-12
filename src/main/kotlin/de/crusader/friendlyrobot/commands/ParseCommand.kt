@@ -21,13 +21,25 @@ open class ParseCommand(
     /**
      * Required argument: path to the latex source code
      */
-    private val latexSourcePath by argumentOfString("input.tex")
+    private val latexSourcePath by argumentOfString()
 
     /**
      * Encoding-Option can be set with --encoding=UTF-16
      * Allows to set the charset of the latex source
      */
     private val encoding by optionOfString("Allows to set the charset of the latex source. Set to system default if not defined")
+
+    /**
+     * Option to enable print of latex markup highlighting
+     * Enable this option with: -m=true or --print-latex-markup=true
+     */
+    protected val printLatexMarkup by optionOfBoolean("Prints syntax highlighting for input latex file", 'm')
+
+    /*
+    TODO: add option for enabling/disabling warnings
+
+        protected val printWarnings by optionOfUnit("Prints warnings and hints occurred while parsing", 'w')
+     */
 
     /**
      * Execute this command.
@@ -39,7 +51,7 @@ open class ParseCommand(
         val parsedLatexSource = parseLatexFile()
 
         // Print parsed source text output to console
-        if (details == true) {
+        if (printLatexMarkup == true) {
             parsedLatexSource.printLatexColored()
             println(Color.DARK_RED.unix("\n\n---\n\n"))
         }

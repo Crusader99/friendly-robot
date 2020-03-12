@@ -2,6 +2,7 @@ package de.crusader.friendlyrobot
 
 import de.crusader.friendlyrobot.commands.Command
 import de.crusader.friendlyrobot.latex.LatexParser
+import de.crusader.objects.color.Color
 import java.io.File
 import java.nio.charset.Charset
 
@@ -10,7 +11,8 @@ import java.nio.charset.Charset
  */
 fun main(args: Array<String>) {
     if (args.isEmpty()) {
-        println("No parameters provided. Starting in interactive mode... Type 'help' for help.")
+        val info = "No parameters provided. Starting in interactive mode... Type 'help' for help."
+        println(Color.YELLOW.unix(info))
         for (commandLine in generateSequence { readLine() }) {
             Command.execute(commandLine)
         }

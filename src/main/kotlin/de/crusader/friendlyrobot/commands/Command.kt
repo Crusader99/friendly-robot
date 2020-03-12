@@ -4,6 +4,7 @@ import de.crusader.args.DeclaredCommand
 import de.crusader.extensions.printErr
 import de.crusader.extensions.toFullString
 import de.crusader.extensions.toOptimizedLine
+import de.crusader.objects.color.Color
 import org.languagetool.Language
 import org.languagetool.Languages
 import java.nio.charset.Charset
@@ -15,16 +16,10 @@ import java.nio.charset.Charset
 abstract class Command(name: String, description: String?) : DeclaredCommand(name, description) {
 
     /**
-     * Print help page to this command
-     * Can be enabled with --help
-     */
-    val help by optionOfUnit("Print help page to this command")
-
-    /**
      * Details option can be enabled with --details
      * Will print more details to exceptions and parsed latex file
      */
-    val details by optionOfBoolean("Show more details to parsed latex and exceptions in console")
+    val debug by optionOfUnit("Show more details to occurred exceptions in console")
 
     /**
      * Converts name of charset to charset instance.
@@ -67,14 +62,21 @@ abstract class Command(name: String, description: String?) : DeclaredCommand(nam
                 ?: throw UnsupportedOperationException("Language with name '$this' not supported! Supported: " + languages.map { it.shortCodeWithCountryAndVariant })
     }
 
+    /**
+     * Execute this command.
+     *
+     * Note: The parse(...) method for this command need to be called first.
+     */
     abstract fun execute()
 
     companion object {
 
         /**
-         * List of all registered commands
+         * List of all registered commands. To prevent issues with args
+         * library, the new command instances will be generated.
          */
-        val registeredCommands = listOf(CheckCommand(), ParseCommand(), HelpCommand())
+        val registeredCommands
+            get() = listOf(CheckCommand(), ParseCommand(), HelpCommand())
 
         /**
          * Handle command by given commandline
@@ -88,22 +90,17 @@ abstract class Command(name: String, description: String?) : DeclaredCommand(nam
                 cmd.parse(commandLine)
             } catch (ex: Exception) {
                 printErr(ex.toOptimizedLine(false))
-                println("Type 'help' for help.")
+                println(Color.YELLOW.unix("Type 'help' for help."))
                 return
             }
             try {
-                if (cmd.help == null) {
-                    // Execute command
-                    cmd.execute()
-                } else {
-                    // Print help page
-                    println(cmd.getManual())
-                }
+                // Execute command
+                cmd.execute()
             } catch (ex: Exception) {
-                val error: String = if (cmd.details == true) {
-                    ex.toFullString()
-                } else {
+                val error: String = if (cmd.debug == null) {
                     ex.toOptimizedLine(false)
+                } else {
+                    ex.toFullString()
                 }
                 printErr(error)
             }

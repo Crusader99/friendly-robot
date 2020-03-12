@@ -18,9 +18,14 @@ class CheckCommand : ParseCommand(
 
     /**
      * Optional argument: language for spell and grammar checking
-     * Default language is set to english
      */
-    private val language by argumentOfString("en")
+    private val language by argumentOfString()
+
+    /**
+     * Enable this option with -p=true or --print-plain-text=true
+     * Print parsed plain text to console
+     */
+    private val printPlainText by optionOfBoolean("Print parsed plain text to console", 'p')
 
     /**
      * Execute this command.
@@ -35,13 +40,13 @@ class CheckCommand : ParseCommand(
         val parsedLatexSource = parseLatexFile()
 
         // Print parsed source text output to console
-        if (details == true) {
+        if (printLatexMarkup != null) {
             parsedLatexSource.printLatexColored()
             println(Color.DARK_RED.unix("\n\n---\n\n"))
         }
 
         // Print plain text output to console
-        if (details == true || details == null) {
+        if (printPlainText == null || printPlainText == true) {
             println(parsedLatexSource.toPlainText())
             print(Color.DARK_RED.unix("\n\n---\n\n"))
         }
