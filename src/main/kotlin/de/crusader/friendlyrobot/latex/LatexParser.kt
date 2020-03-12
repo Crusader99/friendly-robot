@@ -6,6 +6,11 @@ import de.crusader.friendlyrobot.parser.Parser
 import org.languagetool.markup.AnnotatedText
 import org.languagetool.markup.AnnotatedTextBuilder
 
+/**
+ * The latex parser which takes an input latex text and detects contexts of the input text.
+ * The contexts can be converted to plain text, used for syntax highlighting or
+ * information extraction.
+ */
 class LatexParser(input: String) : Parser<Context>(input) {
 
     private var closingBracket = '?'

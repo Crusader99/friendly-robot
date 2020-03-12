@@ -1,5 +1,9 @@
 package de.crusader.friendlyrobot.parser
 
+/**
+ * Contains the specific context for each index in input text.
+ * Implemented in own data structure to make access faster
+ */
 class ContextHistory<CONTEXT>(defaultContext: CONTEXT) {
     private val firstSwitch = ContextObject(0, defaultContext)
     private var lastSwitch = firstSwitch

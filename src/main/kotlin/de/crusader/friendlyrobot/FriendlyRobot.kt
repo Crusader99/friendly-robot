@@ -11,12 +11,14 @@ import java.nio.charset.Charset
  */
 fun main(args: Array<String>) {
     if (args.isEmpty()) {
+        // Start in interactive move where user can type commands to input stream
         val info = "No parameters provided. Starting in interactive mode... Type 'help' for help."
         println(Color.YELLOW.unix(info))
         for (commandLine in generateSequence { readLine() }) {
             Command.execute(commandLine)
         }
     } else {
+        // Execute by passed arguments
         val commandLine = args.joinToString(" ")
         Command.execute(commandLine)
     }

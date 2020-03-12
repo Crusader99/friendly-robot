@@ -1,58 +1,95 @@
 package de.crusader.friendlyrobot.parser
 
+/**
+ * Abstract parser class which takes an input text and detects contexts of the input text.
+ * The contexts can be converted to plain text, used for syntax highlighting or
+ * information extraction.
+ */
 abstract class Parser<CONTEXT>(val input: String) {
 
-    // Context change for each index
-    private val contextSwitches = ContextHistory(defaultContext)
+    /**
+     * Context change for each index
+     */
+    private val contextHistory = ContextHistory(defaultContext)
 
-    // Current index in latex text
+    /**
+     * Current index in latex text
+     */
     protected var index = 0
         private set
 
-    // Current analyzed char
+    /**
+     * Current analyzed char
+     */
     protected val char: Char
         get() = input[index]
 
+    /**
+     * The char at the next index position
+     */
     protected val nextChar: Char?
         get() = getCharAt(index + 1)
 
+    /**
+     * The char at the previous index position
+     */
     protected val previousChar: Char?
         get() = getCharAt(index - 1)
 
-    // Current context for current index
+    /**
+     * Current context for current index
+     */
     protected var currentContext: CONTEXT
         get() = getContextAtIndex(index)
         set(context) {
-            contextSwitches[index] = context
+            contextHistory[index] = context
         }
 
-    // Context for following indices
+    /**
+     * Context for following indices
+     */
     protected var nextContext: CONTEXT
         get() = getContextAtIndex(index + 1)
         set(context) {
-            contextSwitches[index + 1] = context
+            contextHistory[index + 1] = context
         }
 
-    // Text of current context, has length of 1 at first char
+    /**
+     * Text of current context, has length of 1 at first char
+     */
     protected val currentContextString: String
         get() = input.substring(getContextStart(index), index)
 
-    // Text length of current context, will be 1 at first char
+    /**
+     *  Text length of current context, will be 1 at first char
+     */
     protected val currentContextLength: Int
         get() = index - getContextStart(index)
 
-    // First char of current context
+    /**
+     * First char of current context
+     */
     protected val currentContextStart: Char
         get() = input[getContextStart(index)]
 
+    /**
+     * Set or get plain text replacement for the current context
+     */
     protected var currentContextReplacement: String?
-        get() = contextSwitches.getContextAtIndex(index).replacement
+        get() = contextHistory.getContextAtIndex(index).replacement
         set(value) {
-            contextSwitches.getContextAtIndex(index).replacement = value
+            contextHistory.getContextAtIndex(index).replacement = value
         }
 
+    /**
+     * Default start context for parsing
+     * Should be overwritten by sub class
+     */
     protected abstract val defaultContext: CONTEXT
 
+    /**
+     * Returns the opposite bracket, useful for most parsers
+     */
     protected val Char.opposite: Char
         get() = when (this) {
             '{' -> '}'
@@ -65,17 +102,33 @@ abstract class Parser<CONTEXT>(val input: String) {
         }
 
     init {
+        // Starts parsing in parser initialization to prevent missing or double parse() call
         parse()
     }
 
-    // Get context starting at specific index (including that index)
+    /**
+     * Get context starting at specific index (including that index)
+     *
+     * @param index - The index of the requested context based on the index text
+     * @return Context at the given index position
+     */
     protected fun getContextAtIndex(index: Int) =
-            contextSwitches.getContextAtIndex(index).context
+            contextHistory.getContextAtIndex(index).context
 
-    // Get context starting at specific index (including that index)
+    /**
+     * Get context starting at specific index (including that index)
+     *
+     * @param index - The index of the requested context-start based on the index text
+     * @return Index position of context start
+     */
     protected fun getContextStart(index: Int) =
-            contextSwitches.getContextAtIndex(index).startIndex
+            contextHistory.getContextAtIndex(index).startIndex
 
+    /**
+     * Get chat at specific position from input text
+     *
+     * @return chat at index or null when index out of range
+     */
     protected fun getCharAt(index: Int): Char? =
             if (index in input.indices) {
                 input[index]
@@ -83,6 +136,10 @@ abstract class Parser<CONTEXT>(val input: String) {
                 null
             }
 
+    /**
+     * Starts parsing the input text and creates a context history.
+     * The function should be called only once. Usually called on init block.
+     */
     private fun parse() {
         for (index in input.indices) {
             this.index = index
@@ -90,8 +147,18 @@ abstract class Parser<CONTEXT>(val input: String) {
         }
     }
 
+    /**
+     * A call to the underlying parser for a specific context.
+     * Should be implemented by sub class
+     */
     protected abstract fun callContext(context: CONTEXT)
 
+    /**
+     * Converts a specific index of the input text to line and column position as text
+     *
+     * @param indexPosition - Index in input text
+     * @return Line and column position as text
+     */
     fun indexToLocation(indexPosition: Int): String {
         var totalCount = 0
         var lineCount = 0
@@ -107,9 +174,20 @@ abstract class Parser<CONTEXT>(val input: String) {
         return "$lineCount:? ($indexPosition)"
     }
 
+    /**
+     * Simplifies the indexToLocation(...) call. Converts a specific index
+     * of the input text to line and column position as text
+
+     * @return Line and column position as text
+     */
     protected val Int.loc
         get() = indexToLocation(this)
 
+    /**
+     * Calls callback for each part of context history.
+     *
+     * @param callback - Callback for ContextObject and the raw input string for that part
+     */
     fun forEach(callback: (ContextObject<CONTEXT>, String) -> Unit) {
         lateinit var lastSwitch: ContextObject<CONTEXT>
 
@@ -118,7 +196,7 @@ abstract class Parser<CONTEXT>(val input: String) {
             callback(lastSwitch, lastPart)
         }
 
-        for ((index, newSwitch) in contextSwitches.asSortedSequence().withIndex()) {
+        for ((index, newSwitch) in contextHistory.asSortedSequence().withIndex()) {
             if (index == 0) {
                 lastSwitch = newSwitch
                 continue

@@ -1,5 +1,8 @@
 package de.crusader.friendlyrobot.parser
 
+/**
+ * Linked data structure for fast access to context objects
+ */
 class ContextObject<CONTEXT>(
         val startIndex: Int,
         context: CONTEXT
