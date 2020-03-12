@@ -1,17 +1,17 @@
 # friendly-robot
 
-A tool that supports you at LaTeX spell and grammar checking.
+A tool that helps you checking LaTeX spell and grammar mistakes.
 
-* Spell &amp; grammar checking based on [LanguageTool](https://github.com/languagetool-org/)
-* Java 8 Runtime recommended but should work on other versions, too
+* Spell &amp; grammar checking is based on [LanguageTool](https://github.com/languagetool-org/)
 * No webservice invoked. LaTeX parsing and spell checking happens local
+* Java 8 Runtime recommended but should work on other versions, too
 
 ---
 
 ### How this works:
-1. Parses plain text from *.tex-source-files
-2. Performs spell &amp; grammar checks
-3. Prints potential errors with line number from *.tex-source-file
+1. Parses plain text from `*.tex` source-files
+2. Performs spell &amp; grammar checking
+3. Prints potential errors with line number from latex-source-file
 4. Suggests corrections to most errors
 
 --- 
