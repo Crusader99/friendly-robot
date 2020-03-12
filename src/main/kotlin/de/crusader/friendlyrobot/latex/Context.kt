@@ -3,6 +3,7 @@ package de.crusader.friendlyrobot.latex
 import de.crusader.objects.color.Color
 import de.crusader.objects.color.KnownColor
 
+
 /**
  * Defines possible contexts in latex source code
  */

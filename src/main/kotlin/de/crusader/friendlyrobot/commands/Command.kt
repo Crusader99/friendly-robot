@@ -9,6 +9,7 @@ import org.languagetool.Language
 import org.languagetool.Languages
 import java.nio.charset.Charset
 
+
 /**
  * Abstract command implementation. Contains helper functions
  * and a list of all registered commands.
@@ -114,5 +115,4 @@ abstract class Command(name: String, description: String?) : DeclaredCommand(nam
                         ?: throw IllegalArgumentException("Unknown command name: $name")
 
     }
-
 }

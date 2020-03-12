@@ -6,6 +6,7 @@ import de.crusader.objects.color.Color
 import java.io.File
 import java.nio.charset.Charset
 
+
 /**
  * The main class of the application, will be called on startup
  */
@@ -23,6 +24,7 @@ fun main(args: Array<String>) {
         Command.execute(commandLine)
     }
 }
+
 
 /**
  * Loads and parses a latex file with a specific encoding.

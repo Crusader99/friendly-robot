@@ -3,6 +3,7 @@ package de.crusader.friendlyrobot.commands
 import de.crusader.objects.color.Color
 import org.languagetool.JLanguageTool
 
+
 /**
  * Command implementation for checking spell and grammar of latex source file.
  *
@@ -78,5 +79,4 @@ class CheckCommand : ParseCommand(
             println()
         }
     }
-
 }

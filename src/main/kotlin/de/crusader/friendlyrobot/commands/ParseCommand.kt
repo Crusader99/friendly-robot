@@ -5,6 +5,7 @@ import de.crusader.friendlyrobot.parseLatexFile
 import de.crusader.objects.color.Color
 import java.io.File
 
+
 /**
  * Command implementation for parsing latex source file and printing extracted plain text.
  *
