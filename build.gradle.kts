@@ -1,7 +1,6 @@
 plugins {
     application
     kotlin("jvm") version "1.3.70"
-    id("org.gradle.kotlin-dsl.ktlint-convention") version "0.4.1"
 }
 
 group = "de.crusader"
