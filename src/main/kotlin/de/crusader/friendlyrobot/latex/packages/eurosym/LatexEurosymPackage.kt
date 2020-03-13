@@ -1,6 +1,6 @@
-package de.crusader.friendlyrobot.packages.eurosym
+package de.crusader.friendlyrobot.latex.packages.eurosym
 
-import de.crusader.friendlyrobot.packages.LatexPackage
+import de.crusader.friendlyrobot.latex.packages.LatexPackage
 
 /**
  * Contains only commands defined in eurosym latex package

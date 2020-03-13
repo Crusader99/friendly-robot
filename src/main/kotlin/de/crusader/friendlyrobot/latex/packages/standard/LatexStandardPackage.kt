@@ -1,6 +1,6 @@
-package de.crusader.friendlyrobot.packages.standard
+package de.crusader.friendlyrobot.latex.packages.standard
 
-import de.crusader.friendlyrobot.packages.LatexPackage
+import de.crusader.friendlyrobot.latex.packages.LatexPackage
 
 /**
  * Contains only commands defined in standard latex package

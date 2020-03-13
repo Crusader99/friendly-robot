@@ -1,6 +1,6 @@
-package de.crusader.friendlyrobot.packages.unknown
+package de.crusader.friendlyrobot.latex.packages.unknown
 
-import de.crusader.friendlyrobot.packages.LatexPackage
+import de.crusader.friendlyrobot.latex.packages.LatexPackage
 
 /**
  * Contains commands where is not clear from which package the come from

@@ -1,4 +1,4 @@
-package de.crusader.friendlyrobot.packages
+package de.crusader.friendlyrobot.latex.packages
 
 /**
  * Interface for latex packages. The latex packages are able

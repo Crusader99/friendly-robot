@@ -1,8 +1,8 @@
-package de.crusader.friendlyrobot.packages
+package de.crusader.friendlyrobot.latex.packages
 
-import de.crusader.friendlyrobot.packages.eurosym.LatexEurosymPackage
-import de.crusader.friendlyrobot.packages.standard.LatexStandardPackage
-import de.crusader.friendlyrobot.packages.unknown.LatexUnknownPackages
+import de.crusader.friendlyrobot.latex.packages.eurosym.LatexEurosymPackage
+import de.crusader.friendlyrobot.latex.packages.standard.LatexStandardPackage
+import de.crusader.friendlyrobot.latex.packages.unknown.LatexUnknownPackages
 
 /**
  * All used or available packages are registered and loaded in this class
