@@ -10,7 +10,12 @@ abstract class Parser<CONTEXT>(val input: String) {
     /**
      * Context change for each index
      */
-    private val contextHistory = ContextHistory(defaultContext)
+    private val contextHistory by BeforeFirstAccessHandler(ContextHistory(startContext)) {
+        // Starts parsing before first access to this variable
+        // Should prevent missing or double parse() call
+        // May not be compatible with multi threading
+        parse()
+    }
 
     /**
      * Current index in latex text
@@ -85,7 +90,7 @@ abstract class Parser<CONTEXT>(val input: String) {
      * Default start context for parsing
      * Should be overwritten by sub class
      */
-    protected abstract val defaultContext: CONTEXT
+    protected abstract val startContext: CONTEXT
 
     /**
      * Returns the opposite bracket, useful for most parsers
@@ -100,11 +105,6 @@ abstract class Parser<CONTEXT>(val input: String) {
             '>' -> '<'
             else -> throw UnsupportedOperationException("No opposite for $this")
         }
-
-    init {
-        // Starts parsing in parser initialization to prevent missing or double parse() call
-        parse()
-    }
 
     /**
      * Get context starting at specific index (including that index)
@@ -141,9 +141,13 @@ abstract class Parser<CONTEXT>(val input: String) {
      * The function should be called only once. Usually called on init block.
      */
     private fun parse() {
-        for (index in input.indices) {
-            this.index = index
-            callContext(currentContext)
+        try {
+            for (index in input.indices) {
+                this.index = index
+                callContext(currentContext)
+            }
+        } catch (ex: Exception) {
+            throw IllegalStateException("Latex parsing failed in " + index.loc, ex)
         }
     }
 

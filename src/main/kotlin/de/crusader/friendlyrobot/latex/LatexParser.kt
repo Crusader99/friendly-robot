@@ -2,6 +2,7 @@ package de.crusader.friendlyrobot.latex
 
 import de.crusader.extensions.plusAssign
 import de.crusader.extensions.printErr
+import de.crusader.friendlyrobot.packages.LatexPackageRegistry
 import de.crusader.friendlyrobot.parser.Parser
 import org.languagetool.markup.AnnotatedText
 import org.languagetool.markup.AnnotatedTextBuilder
@@ -14,24 +15,55 @@ import org.languagetool.markup.AnnotatedTextBuilder
  */
 class LatexParser(input: String) : Parser<Context>(input) {
 
+    /**
+     * Count of closing brackets to support inner brackets in commands
+     */
     private var closingBracket = '?'
 
-    // Amount of opening inner brackets in markup content context
-    // For example \graphicspath{ {./images/} }
+    /**
+     * Amount of opening inner brackets in markup content context
+     * For example \graphicspath{ {./images/} }
+     */
     private var openedInnerBrackets = 0
 
+    /**
+     * True when previous plain text contains space at end
+     */
     private var spaceInserted = true
+
+    /**
+     * Last parsed command name
+     */
     private lateinit var commandName: String
 
-    override val defaultContext: Context
+    /**
+     * Handles latex commands with help from registered packages
+     */
+    private val packageRegistry = LatexPackageRegistry()
+
+    /**
+     * Context for input text on first character
+     */
+    override val startContext: Context
         get() = Context.TEXT
 
+    /**
+     * Extension property for characters.
+     * Checks if character is linebreak.
+     */
     private val Char.isLinebreak
         get() = this == '\r' || this == '\n'
 
+    /**
+     * Extension property for characters.
+     * Returns true when it is whitespace or linebreak
+     */
     private val Char.isSpace
         get() = isWhitespace() || isLinebreak
 
+    /**
+     * A call to the underlying parser for a specific context.
+     */
     override fun callContext(context: Context) {
         when (context) {
             Context.TEXT -> parseText()
@@ -44,6 +76,9 @@ class LatexParser(input: String) : Parser<Context>(input) {
         }
     }
 
+    /**
+     * Parses latex input text while in normal text context
+     */
     private fun parseText() {
         if (char.isSpace) {
             // Join space area
@@ -74,6 +109,10 @@ class LatexParser(input: String) : Parser<Context>(input) {
         }
     }
 
+    /**
+     * Parses latex input text while in space context.
+     * Space context is wherever there are spaces.
+     */
     private fun parseSpace() {
         if (!char.isSpace) {
             if (!spaceInserted) {
@@ -92,6 +131,9 @@ class LatexParser(input: String) : Parser<Context>(input) {
         }
     }
 
+    /**
+     * Parses latex input text while in quotation marks context
+     */
     private fun parseQuotationMarks() {
         // Set default replacement
         currentContextReplacement = "\""
@@ -118,6 +160,9 @@ class LatexParser(input: String) : Parser<Context>(input) {
         }
     }
 
+    /**
+     * Parses latex input text while in command context
+     */
     private fun parseComment() {
         // Leave comment after line break
         if (char.isLinebreak) {
@@ -126,6 +171,9 @@ class LatexParser(input: String) : Parser<Context>(input) {
         }
     }
 
+    /**
+     * Parses latex input text while in markup-command-context
+     */
     private fun parseMarkupCommand() {
         if (char == '{' || char == '[') {
             // Save some information for later
@@ -136,27 +184,23 @@ class LatexParser(input: String) : Parser<Context>(input) {
             // Jump to markup content
             nextContext = Context.MARKUP_CONTENT
         } else if (currentContextLength == 1 && !char.isLetter()) {
-            currentContextReplacement = if (char == ',') {
-                // Replace protected space to protected space
-                "\u202F"
-            } else {
-                // Keep other character
-                char.toString()
-            }
+            // Handle short commands like '\"'
+            currentContextReplacement = packageRegistry.onCommand("\\$char", emptyArray())
 
             // Leave for things like \\ or \, or things like that
             nextContext = Context.TEXT
         } else if (char.isSpace) {
-            // Support custom line breaks
-            if (currentContextString == "\\newline") {
-                currentContextReplacement = "\n"
-            }
+            // Handle longer commands but without parameters (for example: '\newline')
+            currentContextReplacement = packageRegistry.onCommand(currentContextString, emptyArray())
 
             // Jump back to text for thing like \item ...
             currentContext = Context.SPACE
         }
     }
 
+    /**
+     * Parses latex input text while in markup-content-context
+     */
     private fun parseMarkupContent() {
         if (char == closingBracket) {
             if (openedInnerBrackets > 0) {
@@ -167,22 +211,11 @@ class LatexParser(input: String) : Parser<Context>(input) {
                 // Jump back to markup command when multiple brackets
                 currentContext = Context.MARKUP_COMMAND
             } else {
-                if (commandName.removeSuffix("*").endsWith("section") || commandName.endsWith("title")) {
-                    // Set replacement for title section
-                    currentContextReplacement = "\n\n$currentContextString.\n"
-                } else if (commandName == "\\underline") {
-                    // Ignore underline and print normal text
-                    currentContextReplacement = currentContextString
-                } else if (commandName == "\\item") {
-                    // Convert text parameter to plain text replacement
-                    currentContextReplacement = LatexParser(currentContextString).toPlainText()
-                } else if (commandName == "\\ref") {
-                    // Default replacement for reference
-                    currentContextReplacement = "1.0.0"
-                } else if (commandName == "\\ac") {
-                    // Default replacement for definition text
-                    currentContextReplacement = "Text"
-                }
+                // Remove nested latex commands
+                val content = LatexParser(currentContextString).toPlainText()
+
+                // Handle longer commands but with parameters (for example: '\item{Test}')
+                currentContextReplacement = packageRegistry.onCommand(commandName, arrayOf(content))
 
                 // Mark enclosing brackets as command
                 currentContext = Context.MARKUP_COMMAND
@@ -197,6 +230,9 @@ class LatexParser(input: String) : Parser<Context>(input) {
         }
     }
 
+    /**
+     * Parses latex input text while in math context
+     */
     private fun parseMaths() {
         // Leave after bracket
         if (char == '}') {
@@ -216,6 +252,10 @@ class LatexParser(input: String) : Parser<Context>(input) {
         }
     }
 
+    /**
+     * Converts parsed latex to annotated text.
+     * @return Annotated text instance to be used in language tool
+     */
     fun toAnnotatedText(): AnnotatedText {
         val builder = AnnotatedTextBuilder()
         forEach { switch, part ->
@@ -230,6 +270,10 @@ class LatexParser(input: String) : Parser<Context>(input) {
         return builder.build()
     }
 
+    /**
+     * Prints input latex source to console with syntax highlighting.
+     * Can be used to debug parse mistakes.
+     */
     fun printLatexColored() {
         forEach { switch, part ->
             val formatted = switch.context.fgColor.unix(part)
@@ -238,6 +282,13 @@ class LatexParser(input: String) : Parser<Context>(input) {
         println()
     }
 
+    /**
+     * Converts the parsed latex to plain text
+     *
+     * @param range - Index range of input source to be included in plain text
+     * @return Parsed plain text
+     */
+    @JvmOverloads
     fun toPlainText(range: IntRange? = null): String {
         val builder = StringBuilder()
         forEach { switch, part ->
