@@ -13,7 +13,7 @@ import org.languagetool.markup.AnnotatedTextBuilder
  * The contexts can be converted to plain text, used for syntax highlighting or
  * information extraction.
  */
-class LatexParser(input: String) : Parser<Context>(input) {
+class LatexParser(input: String) : Parser<LatexContext>(input) {
 
     /**
      * Count of closing brackets to support inner brackets in commands
@@ -44,35 +44,28 @@ class LatexParser(input: String) : Parser<Context>(input) {
     /**
      * Context for input text on first character
      */
-    override val startContext: Context
-        get() = Context.TEXT
-
-    /**
-     * Extension property for characters.
-     * Checks if character is linebreak.
-     */
-    private val Char.isLinebreak
-        get() = this == '\r' || this == '\n'
+    override val startContext: LatexContext
+        get() = LatexContext.TEXT
 
     /**
      * Extension property for characters.
      * Returns true when it is whitespace or linebreak
      */
     private val Char.isSpace
-        get() = isWhitespace() || isLinebreak
+        get() = isWhitespace() || isLineBreak()
 
     /**
      * A call to the underlying parser for a specific context.
      */
-    override fun callContext(context: Context) {
+    override fun callContext(context: LatexContext) {
         when (context) {
-            Context.TEXT -> parseText()
-            Context.SPACE -> parseSpace()
-            Context.COMMENT -> parseComment()
-            Context.MARKUP_COMMAND -> parseMarkupCommand()
-            Context.MARKUP_CONTENT -> parseMarkupContent()
-            Context.QUOTATION_MARKS -> parseQuotationMarks()
-            Context.MATH -> parseMaths()
+            LatexContext.TEXT -> parseText()
+            LatexContext.SPACE -> parseSpace()
+            LatexContext.COMMENT -> parseComment()
+            LatexContext.MARKUP_COMMAND -> parseMarkupCommand()
+            LatexContext.MARKUP_CONTENT -> parseMarkupContent()
+            LatexContext.QUOTATION_MARKS -> parseQuotationMarks()
+            LatexContext.MATH -> parseMaths()
         }
     }
 
@@ -82,22 +75,22 @@ class LatexParser(input: String) : Parser<Context>(input) {
     private fun parseText() {
         if (char.isSpace) {
             // Join space area
-            currentContext = Context.SPACE
+            currentContext = LatexContext.SPACE
         } else if (char == '%') {
             // Join comment
-            currentContext = Context.COMMENT
+            currentContext = LatexContext.COMMENT
         } else if (char == '\\') {
             // Join markup
-            currentContext = Context.MARKUP_COMMAND
+            currentContext = LatexContext.MARKUP_COMMAND
         } else if (char == '"') {
             // Join quotation-marks
-            currentContext = Context.QUOTATION_MARKS
+            currentContext = LatexContext.QUOTATION_MARKS
         } else if (char == '{') {
             // Support multiple sub brackets
             openedInnerBrackets = 0
 
             // Join math context
-            currentContext = Context.MATH
+            currentContext = LatexContext.MATH
         } else {
             // Allow chars to be inserted
             spaceInserted = false
@@ -124,7 +117,7 @@ class LatexParser(input: String) : Parser<Context>(input) {
             }
 
             // Leave space area
-            currentContext = Context.TEXT
+            currentContext = LatexContext.TEXT
 
             // Handle text parser
             parseText()
@@ -140,10 +133,10 @@ class LatexParser(input: String) : Parser<Context>(input) {
 
         if (char == '`') {
             currentContextReplacement = "„"
-            nextContext = Context.TEXT
+            nextContext = LatexContext.TEXT
         } else if (char == '\'') {
             currentContextReplacement = "“"
-            nextContext = Context.TEXT
+            nextContext = LatexContext.TEXT
         } else {
             // Print format warning
             if (char.isLetter()) {
@@ -153,7 +146,7 @@ class LatexParser(input: String) : Parser<Context>(input) {
             }
 
             // Switch context to text
-            currentContext = Context.TEXT
+            currentContext = LatexContext.TEXT
 
             // Handle text parser
             parseText()
@@ -165,8 +158,8 @@ class LatexParser(input: String) : Parser<Context>(input) {
      */
     private fun parseComment() {
         // Leave comment after line break
-        if (char.isLinebreak) {
-            currentContext = Context.SPACE
+        if (char.isLineBreak()) {
+            currentContext = LatexContext.SPACE
             parseSpace()
         }
     }
@@ -182,19 +175,19 @@ class LatexParser(input: String) : Parser<Context>(input) {
             commandName = currentContextString
 
             // Jump to markup content
-            nextContext = Context.MARKUP_CONTENT
+            nextContext = LatexContext.MARKUP_CONTENT
         } else if (currentContextLength == 1 && !char.isLetter()) {
             // Handle short commands like '\"'
             currentContextReplacement = packageRegistry.onCommand("\\$char", emptyArray())
 
             // Leave for things like \\ or \, or things like that
-            nextContext = Context.TEXT
+            nextContext = LatexContext.TEXT
         } else if (char.isSpace) {
             // Handle longer commands but without parameters (for example: '\newline')
             currentContextReplacement = packageRegistry.onCommand(currentContextString, emptyArray())
 
             // Jump back to text for thing like \item ...
-            currentContext = Context.SPACE
+            currentContext = LatexContext.SPACE
         }
     }
 
@@ -209,7 +202,7 @@ class LatexParser(input: String) : Parser<Context>(input) {
                 openedInnerBrackets--
             } else if (nextChar == '{' || nextChar == '[') {
                 // Jump back to markup command when multiple brackets
-                currentContext = Context.MARKUP_COMMAND
+                currentContext = LatexContext.MARKUP_COMMAND
             } else {
                 // Remove nested latex commands
                 val content = LatexParser(currentContextString).toPlainText()
@@ -218,10 +211,10 @@ class LatexParser(input: String) : Parser<Context>(input) {
                 currentContextReplacement = packageRegistry.onCommand(commandName, arrayOf(content))
 
                 // Mark enclosing brackets as command
-                currentContext = Context.MARKUP_COMMAND
+                currentContext = LatexContext.MARKUP_COMMAND
 
                 // Jump back to text on closing bracket
-                nextContext = Context.TEXT
+                nextContext = LatexContext.TEXT
             }
         } else if (char == closingBracket.opposite) {
             // Found opening inner bracket
@@ -245,7 +238,7 @@ class LatexParser(input: String) : Parser<Context>(input) {
                         .removePrefix("{")
                         .removeSuffix("}")
                 currentContextReplacement = LatexParser(mathLatex).toPlainText()
-                nextContext = Context.TEXT
+                nextContext = LatexContext.TEXT
             }
         } else if (char == '{') {
             openedInnerBrackets++
@@ -259,7 +252,7 @@ class LatexParser(input: String) : Parser<Context>(input) {
     fun toAnnotatedText(): AnnotatedText {
         val builder = AnnotatedTextBuilder()
         forEach { switch, part ->
-            if (switch.context == Context.TEXT) {
+            if (switch.context == LatexContext.TEXT) {
                 builder.addText(part)
             } else if (switch.replacement != null) {
                 builder.addMarkup(part, switch.replacement)
@@ -294,7 +287,7 @@ class LatexParser(input: String) : Parser<Context>(input) {
         forEach { switch, part ->
             val context = switch.context
             val replacement = switch.replacement
-            val append = if (context == Context.TEXT) {
+            val append = if (context == LatexContext.TEXT) {
                 part
             } else replacement ?: return@forEach
 

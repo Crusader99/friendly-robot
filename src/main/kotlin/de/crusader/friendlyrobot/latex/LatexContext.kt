@@ -7,7 +7,7 @@ import de.crusader.objects.color.KnownColor
 /**
  * Defines possible contexts in latex source code
  */
-enum class Context(val fgColor: KnownColor, val bgColor: KnownColor) {
+enum class LatexContext(val fgColor: KnownColor, val bgColor: KnownColor) {
     TEXT(Color.WHITE, Color.BLACK),
     SPACE(Color.WHITE, Color.GRAY),
     COMMENT(Color.YELLOW, Color.AQUA),

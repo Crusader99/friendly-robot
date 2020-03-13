@@ -107,6 +107,13 @@ abstract class Parser<CONTEXT>(val input: String) {
         }
 
     /**
+     * Checks if character is part of a linebreak
+     *
+     * @return true when char is \n or \r
+     */
+    protected fun Char.isLineBreak() = this == '\n' || this == '\r'
+
+    /**
      * Get context starting at specific index (including that index)
      *
      * @param index - The index of the requested context based on the index text
