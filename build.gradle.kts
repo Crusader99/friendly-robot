@@ -2,11 +2,11 @@ import org.jetbrains.kotlin.gradle.plugin.KotlinPluginWrapper
 
 plugins {
     application
-    kotlin("jvm") version "1.3.70"
+    kotlin("jvm") version "1.3.72"
 }
 
 group = "de.crusader"
-version = "1.0.0"
+version = "1.0.1"
 
 application {
     applicationName = "FriendlyRobot"
@@ -35,13 +35,13 @@ dependencies {
     implementation("ch.qos.logback:logback-classic:1.2.3")
 
     // Multi-platform library for shorter access to some java api functionality
-    implementation("de.crusader:kotlin-extensions-jvm:1.0.0")
+    implementation("de.crusader:kotlin-extensions-jvm:1.0.2")
 
-    // Kotlin based multi-plattform projekt provides Color, Rectangle, Point, etc
+    // Kotlin based multi-platform project provides Color, Rectangle, Point, etc
     implementation("de.crusader:library-objects-jvm:1.0.0")
 
     // Easy to use command line argument parser for kotlin
-    implementation("de.crusader:library-args:1.0.0")
+    implementation("de.crusader:library-args:1.0.1")
 
     // Language tool allows style and grammar checking
     implementation("org.languagetool:language-all:4.8")

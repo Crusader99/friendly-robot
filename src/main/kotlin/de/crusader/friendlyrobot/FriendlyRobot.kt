@@ -12,7 +12,7 @@ import java.nio.charset.Charset
  */
 fun main(args: Array<String>) {
     if (args.isEmpty()) {
-        // Start in interactive move where user can type commands to input stream
+        // Start an interactive mode where user can type commands to input stream
         val info = "No parameters provided. Starting in interactive mode... Type 'help' for help."
         println(Color.YELLOW.unix(info))
         for (commandLine in generateSequence { readLine() }) {

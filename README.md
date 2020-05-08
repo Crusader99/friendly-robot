@@ -1,6 +1,6 @@
 # friendly-robot
 
-A tool that helps you checking LaTeX spell and grammar mistakes.
+A tool that helps you to check LaTeX spell and grammar mistakes.
 
 * Spell &amp; grammar checking is based on [LanguageTool](https://github.com/languagetool-org/)
 * No webservice invoked. LaTeX parsing and spell checking happens local
