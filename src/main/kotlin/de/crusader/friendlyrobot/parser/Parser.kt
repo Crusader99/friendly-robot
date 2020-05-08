@@ -42,6 +42,32 @@ abstract class Parser<CONTEXT>(val input: String) {
         get() = getCharAt(index - 1)
 
     /**
+     * Returns sequence of following chars
+     * Does not include current char
+     */
+    protected val nextChars: Sequence<Char>
+        get() {
+            var pos = index
+            return generateSequence {
+                pos++
+                getCharAt(pos)
+            }
+        }
+
+    /**
+     * Returns sequence of previous chars
+     * Does not include current char
+     */
+    protected val previousChars: Sequence<Char>
+        get() {
+            var pos = index
+            return generateSequence {
+                pos--
+                getCharAt(pos)
+            }
+        }
+
+    /**
      * Current context for current index
      */
     protected var currentContext: CONTEXT
@@ -97,6 +123,8 @@ abstract class Parser<CONTEXT>(val input: String) {
      */
     protected val Char.opposite: Char
         get() = when (this) {
+            '(' -> ')'
+            ')' -> '('
             '{' -> '}'
             '}' -> '{'
             '[' -> ']'
@@ -112,6 +140,16 @@ abstract class Parser<CONTEXT>(val input: String) {
      * @return true when char is \n or \r
      */
     protected fun Char.isLineBreak() = this == '\n' || this == '\r'
+
+    /**
+     * Checks if character is any type of bracket, useful for most parsers
+     *
+     * @return True when char is bracket
+     */
+    protected fun Char.isBracket(): Boolean = when (this) {
+        '(', ')', '{', '}', '[', ']', '<', '>' -> true
+        else -> false
+    }
 
     /**
      * Get context starting at specific index (including that index)
