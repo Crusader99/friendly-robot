@@ -23,6 +23,9 @@ class LatexStandardPackage : LatexPackage {
             return if (char == ',') {
                 // Replace protected space to protected space
                 "\u202F"
+            } else if (char == '\\') {
+                // Replace with newline
+                "\n"
             } else {
                 // Keep other characters
                 char.toString()

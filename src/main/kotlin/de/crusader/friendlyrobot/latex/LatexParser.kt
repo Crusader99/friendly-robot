@@ -73,7 +73,7 @@ class LatexParser(input: String) : Parser<LatexContext>(input) {
      * Parses latex input text while in normal text context
      */
     private fun parseText() {
-        if (char.isSpace) {
+        if (char.isSpace || char == '&') {
             // Join space area
             currentContext = LatexContext.SPACE
         } else if (char == '%') {
@@ -107,7 +107,7 @@ class LatexParser(input: String) : Parser<LatexContext>(input) {
      * Space context is wherever there are spaces.
      */
     private fun parseSpace() {
-        if (!char.isSpace) {
+        if (!char.isSpace && char != '&') {
             if (!spaceInserted) {
                 // Replace multiple chars to one char
                 currentContextReplacement = " "
@@ -178,13 +178,21 @@ class LatexParser(input: String) : Parser<LatexContext>(input) {
             nextContext = LatexContext.MARKUP_CONTENT
         } else if (currentContextLength == 1 && !char.isLetter()) {
             // Handle short commands like '\"'
-            currentContextReplacement = packageRegistry.onCommand("\\$char", emptyArray())
+            val replacement = packageRegistry.onCommand("\\$char", emptyArray())
+            currentContextReplacement = replacement
+            if (!replacement.isNullOrEmpty()) {
+                spaceInserted = replacement.last().isSpace
+            }
 
             // Leave for things like \\ or \, or things like that
             nextContext = LatexContext.TEXT
         } else if (char.isSpace) {
             // Handle longer commands but without parameters (for example: '\newline')
-            currentContextReplacement = packageRegistry.onCommand(currentContextString, emptyArray())
+            val replacement = packageRegistry.onCommand(currentContextString, emptyArray())
+            currentContextReplacement = replacement
+            if (!replacement.isNullOrEmpty()) {
+                spaceInserted = replacement.last().isSpace
+            }
 
             // Jump back to text for thing like \item ...
             currentContext = LatexContext.SPACE
@@ -208,7 +216,11 @@ class LatexParser(input: String) : Parser<LatexContext>(input) {
                 val content = LatexParser(currentContextString).toPlainText()
 
                 // Handle longer commands but with parameters (for example: '\item{Test}')
-                currentContextReplacement = packageRegistry.onCommand(commandName, arrayOf(content))
+                val replacement = packageRegistry.onCommand(commandName, arrayOf(content))
+                currentContextReplacement = replacement
+                if (!replacement.isNullOrEmpty()) {
+                    spaceInserted = replacement.last().isSpace
+                }
 
                 // Mark enclosing brackets as command
                 currentContext = LatexContext.MARKUP_COMMAND

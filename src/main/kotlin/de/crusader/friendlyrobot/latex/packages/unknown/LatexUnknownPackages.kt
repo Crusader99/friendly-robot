@@ -31,9 +31,12 @@ class LatexUnknownPackages : LatexPackage {
         } else if (commandName == "\\underline" && parameters.isNotEmpty()) {
             // Ignore underline and print normal text
             return parameters[0]
-        } else if (commandName == "\\item" && parameters.isNotEmpty()) {
+        } else if (commandName == "\\item") {
             // Convert text parameter to plain text replacement
-            return parameters[0]
+            return "\n- " + parameters.joinToString(" ")
+        } else if (commandName == "\\end") {
+            // Convert end of tabular or item-size to newline
+            return "\n"
         } else if (commandName == "\\ref") {
             // Default replacement for reference
             return "1.0.0"
