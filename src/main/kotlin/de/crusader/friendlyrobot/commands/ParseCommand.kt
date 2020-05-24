@@ -3,6 +3,8 @@ package de.crusader.friendlyrobot.commands
 import de.crusader.friendlyrobot.latex.LatexParser
 import de.crusader.friendlyrobot.parseLatexFile
 import de.crusader.objects.color.Color
+import java.awt.Toolkit
+import java.awt.datatransfer.DataFlavor
 import java.io.File
 
 
@@ -67,6 +69,16 @@ open class ParseCommand(
      * @return LatexParser with parsed latex content
      */
     protected fun parseLatexFile(): LatexParser {
+        val latexSourcePath = latexSourcePath
+
+        // Allow getting text from clipboard instead
+        if (latexSourcePath == "clipboard") {
+            val toolkit = Toolkit.getDefaultToolkit()
+            val clipboard = toolkit.systemClipboard
+            val inputSource = clipboard.getData(DataFlavor.stringFlavor).toString()
+            return LatexParser(inputSource)
+        }
+
         // Get latex source file
         val latexSourceFile = File(latexSourcePath)
 
