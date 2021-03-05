@@ -2,7 +2,7 @@ import org.jetbrains.kotlin.gradle.plugin.KotlinPluginWrapper
 
 plugins {
     application
-    kotlin("jvm") version "1.3.72"
+    kotlin("jvm") version "1.4.31"
 }
 
 group = "de.crusader"
@@ -14,9 +14,7 @@ application {
 }
 
 repositories {
-    maven {
-        url = uri("https://provider.ddnss.de/repository")
-    }
+    maven("https://provider.ddnss.de/repository")
     jcenter()
     mavenCentral()
 }
@@ -25,9 +23,6 @@ repositories {
 val kotlinVersion = plugins.getPlugin(KotlinPluginWrapper::class.java).kotlinPluginVersion
 
 dependencies {
-    // Kotlin standard library
-    implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlinVersion")
-
     // Library for automated test units
     implementation("org.jetbrains.kotlin:kotlin-test-junit:$kotlinVersion")
 
