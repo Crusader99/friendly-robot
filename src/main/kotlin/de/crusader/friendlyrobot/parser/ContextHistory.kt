@@ -23,7 +23,7 @@ class ContextHistory<CONTEXT>(defaultContext: CONTEXT) {
     fun getContextAtIndex(index: Int): ContextObject<CONTEXT> =
             lastSwitch[index] ?: lastSwitch.lowerIndices()
                     .filter { it.startIndex <= index }
-                    .maxBy { it.startIndex }
+                    .maxByOrNull { it.startIndex }
             ?: throw IllegalStateException("No context found at index $index")
 
 }

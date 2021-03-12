@@ -37,6 +37,11 @@ class LatexParser(input: String) : Parser<LatexContext>(input) {
     private lateinit var commandName: String
 
     /**
+     * Parameters for the currently parsed command
+     */
+    private val commandParameters = mutableListOf<String>()
+
+    /**
      * Handles latex commands with help from registered packages
      */
     private val packageRegistry = LatexPackageRegistry()
@@ -172,7 +177,10 @@ class LatexParser(input: String) : Parser<LatexContext>(input) {
             // Save some information for later
             closingBracket = char.opposite
             openedInnerBrackets = 0
-            commandName = currentContextString
+            if (currentContextLength != 1) {
+                commandName = currentContextString
+                commandParameters.clear()
+            }
 
             // Jump to markup content
             nextContext = LatexContext.MARKUP_CONTENT
@@ -209,14 +217,18 @@ class LatexParser(input: String) : Parser<LatexContext>(input) {
                 // For example \graphicspath{ {./images/} }
                 openedInnerBrackets--
             } else if (nextChar == '{' || nextChar == '[') {
+                // Remove nested latex commands
+                commandParameters += LatexParser(currentContextString).toPlainText()
+
                 // Jump back to markup command when multiple brackets
                 currentContext = LatexContext.MARKUP_COMMAND
             } else {
                 // Remove nested latex commands
-                val content = LatexParser(currentContextString).toPlainText()
+                commandParameters += LatexParser(currentContextString).toPlainText()
 
                 // Handle longer commands but with parameters (for example: '\item{Test}')
-                val replacement = packageRegistry.onCommand(commandName, arrayOf(content))
+                val replacement = packageRegistry.onCommand(commandName, commandParameters.toTypedArray())
+                commandParameters.clear()
                 currentContextReplacement = replacement
                 if (!replacement.isNullOrEmpty()) {
                     spaceInserted = replacement.last().isSpace
@@ -247,8 +259,8 @@ class LatexParser(input: String) : Parser<LatexContext>(input) {
             } else {
                 // Calculate full math context
                 val mathLatex = currentContextString
-                        .removePrefix("{")
-                        .removeSuffix("}")
+                    .removePrefix("{")
+                    .removeSuffix("}")
                 currentContextReplacement = LatexParser(mathLatex).toPlainText()
                 nextContext = LatexContext.TEXT
             }

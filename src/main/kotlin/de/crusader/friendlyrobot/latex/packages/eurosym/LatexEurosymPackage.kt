@@ -23,6 +23,8 @@ class LatexEurosymPackage : LatexPackage {
         } else if (commandName == "\\EUR" && parameters.size == 1) {
             val content = parameters[0]
             return "$content €"
+        } else if (commandName == "\\ss") {
+            return "ß"
         }
 
         // Ignore other commands and commands for other packages

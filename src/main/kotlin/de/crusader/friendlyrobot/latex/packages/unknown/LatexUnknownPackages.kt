@@ -8,6 +8,11 @@ import de.crusader.friendlyrobot.latex.packages.LatexPackage
 class LatexUnknownPackages : LatexPackage {
 
     /**
+     * Save shortcuts from \acro command
+     */
+    private val acRegistry = mutableMapOf<String, String>()
+
+    /**
      * Called when command parsed from latex source.
      *
      * @param commandName -     Name of the parsed command, including \ as first char
@@ -31,6 +36,9 @@ class LatexUnknownPackages : LatexPackage {
         } else if (commandName == "\\underline" && parameters.isNotEmpty()) {
             // Ignore underline and print normal text
             return parameters[0]
+        } else if (commandName == "\\textit" && parameters.size == 1) {
+            // Print italic as text with quotation marks
+            return "„" + parameters[0] + "“"
         } else if (commandName == "\\item") {
             // Convert text parameter to plain text replacement
             return "\n- " + parameters.joinToString(" ")
@@ -41,8 +49,11 @@ class LatexUnknownPackages : LatexPackage {
             // Default replacement for reference
             return "1.0.0"
         } else if (commandName == "\\ac") {
-            // Default replacement for definition text
-            return "Text"
+            // "Text" is the default replacement for definition text
+            return acRegistry[parameters.single()] ?: "Text"
+        } else if (commandName == "\\acro") {
+            // Safe in registry for usage in \ac command
+            acRegistry[parameters.first()] = parameters.last()
         } else if (commandName == "\\url" && parameters.isNotEmpty()) {
             // Return url
             return parameters[0]
