@@ -5,12 +5,13 @@ plugins {
     id("se.patrikerdes.use-latest-versions") version "0.2.15"
     id("com.github.ben-manes.versions") version "0.38.0"
     application
+    `maven-publish`
     idea
     eclipse
 }
 
 group = "de.crusader"
-version = "1.0.2"
+version = "1.0.4"
 
 application {
     applicationName = "FriendlyRobot"
@@ -46,7 +47,19 @@ dependencies {
 }
 
 tasks.compileKotlin {
-    kotlinOptions {
-        jvmTarget = "1.8"
+    kotlinOptions.jvmTarget = "1.8"
+}
+
+tasks.compileJava {
+    sourceCompatibility = "1.8"
+    targetCompatibility = "1.8"
+}
+
+publishing {
+    publications.create<MavenPublication>("maven") {
+        from(components["java"])
+    }
+    repositories {
+        maven("$buildDir/repo")
     }
 }
