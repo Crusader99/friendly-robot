@@ -1,8 +1,8 @@
 import org.jetbrains.kotlin.gradle.plugin.KotlinPluginWrapper
 
 plugins {
-    kotlin("jvm") version "1.4.31"
-    id("se.patrikerdes.use-latest-versions") version "0.2.15"
+    kotlin("jvm") version "1.4.32"
+    id("se.patrikerdes.use-latest-versions") version "0.2.16"
     id("com.github.ben-manes.versions") version "0.38.0"
     application
     `maven-publish`
@@ -19,8 +19,8 @@ application {
 }
 
 repositories {
-    mavenCentral()
     maven("https://provider.ddnss.de/repository")
+    mavenCentral()
 }
 
 // Get version of kotlin plugin defined in plugins section
@@ -43,7 +43,7 @@ dependencies {
     implementation("de.crusader:library-args-jvm:2.1.4")
 
     // Language tool allows style and grammar checking
-    implementation("org.languagetool:language-all:5.2")
+    implementation("org.languagetool:language-all:5.3")
 }
 
 tasks.compileKotlin {
