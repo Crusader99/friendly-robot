@@ -57,6 +57,9 @@ class LatexUnknownPackages : LatexPackage {
         } else if (commandName == "\\url" && parameters.isNotEmpty()) {
             // Return url
             return parameters[0]
+        } else if (commandName == "\\caption" && parameters.size == 1) {
+            // Return caption / image description
+            return parameters.single()
         }
 
         // Ignore other commands and commands for other packages
